@@ -1,0 +1,11 @@
+# Palavras-chave do Monitor DOU
+# Uma palavra por linha. Maiúsculas e acentos são ignorados.
+# Plurais simples são incluídos automaticamente (alimento -> alimentos, notificação -> notificações).
+# Para incluir outras variações, liste-as na mesma linha separadas por vírgula:
+#   nome principal, variação 1, variação 2
+# Para buscar uma expressão exata, escreva a expressão inteira (ex.: suplemento alimentar).
+# Linhas começando com # são ignoradas.
+
+alimento, alimentar, alimentares, alimentício, alimentícios, alimentícia, alimentícias
+suplemento
+notificação
