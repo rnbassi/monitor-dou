@@ -15,16 +15,17 @@ jobs:
         run: |
           mkdir -p diag
           UA="Mozilla/5.0 (X11; Linux x86_64) monitor-dou-pessoal/1.0"
-          curl -sSL -A "$UA" -o diag/busca1.html -w "busca1 %{http_code} %{size_download}\n" \
-            'https://www.in.gov.br/consulta/-/buscar/dou?q=%22suplemento%22&s=todos&exactDate=personalizado&publishFrom=30-10-2026&publishTo=30-10-2026&sortType=0&delta=75'
-          curl -sSL -A "$UA" -o diag/busca2.html -w "busca2 %{http_code} %{size_download}\n" \
-            'https://www.in.gov.br/consulta/-/buscar/dou?q=suplemento&s=todos&exactDate=semana&sortType=0'
-          curl -sSL -A "$UA" -o diag/leitura.html -w "leitura %{http_code} %{size_download}\n" \
-            'https://www.in.gov.br/leiturajornal?data=30-10-2026&secao=do1'
+          B='https://www.in.gov.br/consulta/-/buscar/dou'
+          curl -sSL -A "$UA" -o diag/t1.html -w "t1 %{http_code}\n" "$B?q=%22suplemento%22&s=todos&exactDate=personalizado&publishFrom=29-10-2026&publishTo=29-10-2026&sortType=0&delta=75"
+          curl -sSL -A "$UA" -o diag/t2.html -w "t2 %{http_code}\n" "$B?q=suplemento&s=todos&exactDate=personalizado&publishFrom=29-10-2026&publishTo=29-10-2026&sortType=0&delta=75"
+          curl -sSL -A "$UA" -o diag/t3.html -w "t3 %{http_code}\n" "$B?q=suplemento&s=todos&exactDate=personalizado&publishFrom=29%2F10%2F2026&publishTo=29%2F10%2F2026&sortType=0&delta=75"
+          curl -sSL -A "$UA" -o diag/t4.html -w "t4 %{http_code}\n" "$B?q=%22suplemento%22&s=todos&exactDate=semana&sortType=1&delta=75"
+          curl -sSL -A "$UA" -o diag/l29.html -w "l29 %{http_code}\n" "https://www.in.gov.br/leiturajornal?data=29-10-2026&secao=do1"
+          curl -sSL -A "$UA" -o diag/ato.html -w "ato %{http_code}\n" "https://www.in.gov.br/web/dou/-/portaria-gm/ms-n-12.315-de-28-de-outubro-de-2026-741176397"
           ls -la diag
       - name: Salvar
         run: |
           git config user.name "monitor-dou"
           git config user.email "monitor-dou@users.noreply.github.com"
           git add diag/
-          git commit -m "diagnóstico" && git push
+          git rm -q --cached diag/busca1.html diag/busca2.html diag/leitura.html || true; git commit -m "diagnóstico" && git push
