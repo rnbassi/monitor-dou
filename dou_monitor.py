@@ -300,7 +300,11 @@ def buscar_site(data_iso, grupos, termos_por_grupo, obter=None, max_atos_texto=8
                 erros.append(str(e))
         completo = "\n".join([limpar_html(it.get("title", "")), texto or resumo_busca])
         norm = normalizar(completo)
-        confirmadas = [g["nome"] for g in grupos if g["regex"].search(norm)] or sorted(a["termos"])
+        confirmadas = [g["nome"] for g in grupos if g["regex"].search(norm)]
+        if not confirmadas:
+            if texto:
+                continue  # a busca do site casou outra palavra parecida (ex.: "Suplementar")
+            confirmadas = sorted(a["termos"])
         tr = []
         for g in grupos:
             if g["nome"] in confirmadas:
