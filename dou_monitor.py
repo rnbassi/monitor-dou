@@ -233,7 +233,22 @@ def extrair_texto_ato(pagina_html):
     return re.sub(r"\n\s*", "\n", texto).strip()
 
 
-def buscar_site(data_iso, grupos, termos_por_grupo, obter=None, max_atos_texto=80):
+def nome_secao(pub):
+    m = re.match(r"(?i)do(\d)(e)?(?:_extra_?([a-z]))?$", str(pub or "").strip())
+    if not m:
+        return str(pub or "")
+    nome = f"Seção {m.group(1)}"
+    if m.group(2) or m.group(3):
+        nome += " – Extra" + (f" {m.group(3).upper()}" if m.group(3) else "")
+    return nome
+
+
+def numero_secao(pub):
+    m = re.match(r"(?i)do(\d)", str(pub or "").strip())
+    return m.group(1) if m else ""
+
+
+def buscar_site(data_iso, grupos, termos_por_grupo, obter=None, max_atos_texto=600, secoes=None):
     """Faz uma busca por termo no site do DOU para a data e abre cada ato encontrado.
     `obter(url, params)` devolve o HTML; é substituível para testes."""
     if obter is None:
@@ -272,12 +287,15 @@ def buscar_site(data_iso, grupos, termos_por_grupo, obter=None, max_atos_texto=8
                 for it in itens:
                     if it.get("pubDate") and it["pubDate"] != d_pub:
                         continue
+                    if secoes and numero_secao(it.get("pubName")) not in secoes:
+                        continue
                     chave = it.get("urlTitle") or it.get("title")
                     if chave not in achados:
                         achados[chave] = {"item": it, "termos": set()}
                         novos += 1
                     achados[chave]["termos"].add(g["nome"])
-                if len(itens) < int(params["delta"]) or not novos:
+                print(f"  busca '{termo}' pág. {pagina}: {len(itens)} itens")
+                if len(itens) < int(params["delta"]):
                     break
                 ultimo = itens[-1]
                 params.update({"currentPage": str(pagina), "newPage": str(pagina + 1), "score": "0",
@@ -313,7 +331,7 @@ def buscar_site(data_iso, grupos, termos_por_grupo, obter=None, max_atos_texto=8
                     if not any(nucleo in x for x in tr):
                         tr.append(t)
         ocorrencias.append({
-            "secao": SECAO_SITE.get(str(it.get("pubName", "")).lower(), it.get("pubName", "")),
+            "secao": nome_secao(it.get("pubName")),
             "pagina": str(it.get("numberPage", "")),
             "edicao": str(it.get("editionNumber", "")),
             "tipo": it.get("artType", ""),
@@ -362,12 +380,15 @@ def main():
     ap.add_argument("--zips", help="pasta com zips já baixados (teste offline)")
     ap.add_argument("--palavras", default=str(BASE / "palavras.txt"))
     ap.add_argument("--saida", default=str(BASE / "resultados"))
+    ap.add_argument("--secoes", default=os.environ.get("SECOES", "1,2,3"),
+                    help="seções a incluir, ex.: 1 ou 1,3 (edições extras vêm junto)")
     ap.add_argument("--modo", choices=["auto", "inlabs", "site"], default="auto",
                     help="auto: INLABS se houver credenciais, senão a busca do site do DOU")
     args = ap.parse_args()
 
     data_iso = args.data or datetime.now(BRT).strftime("%Y-%m-%d")
     grupos = carregar_palavras(args.palavras)
+    secoes = {x.strip() for x in str(args.secoes).split(",") if x.strip()}
 
     fonte, avisos = "INLABS", []
     arquivos, ausentes = {}, []
@@ -390,7 +411,7 @@ def main():
 
     if fonte == "site":
         termos = {g["nome"]: g["termos"] for g in grupos}
-        ocorrencias, erros = buscar_site(data_iso, grupos, termos)
+        ocorrencias, erros = buscar_site(data_iso, grupos, termos, secoes=secoes)
         avisos += erros
         ok = not erros or ocorrencias
         res = {
@@ -401,7 +422,7 @@ def main():
             "status": "ok" if ok else "erro",
             "mensagem": " ".join(avisos),
             "palavras": [g["nome"] for g in grupos],
-            "secoes_lidas": ["Todas (busca do site)"],
+            "secoes_lidas": [f"Seção {x} (com extras)" for x in sorted(secoes)],
             "secoes_ausentes": [],
             "atos_analisados": len(ocorrencias),
             "total_ocorrencias": len(ocorrencias),
@@ -413,6 +434,8 @@ def main():
 
     ocorrencias, total_atos = [], 0
     for secao, conteudo in arquivos.items():
+        if numero_secao(secao) not in secoes:
+            continue
         for art in ler_artigos(conteudo, secao):
             total_atos += 1
             completo = "\n".join([art["titulo"], art["ementa"], art["texto"]])

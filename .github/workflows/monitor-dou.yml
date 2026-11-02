@@ -31,6 +31,8 @@ jobs:
         env:
           INLABS_EMAIL: ${{ secrets.INLABS_EMAIL }}
           INLABS_SENHA: ${{ secrets.INLABS_SENHA }}
+          # Seções do DOU a incluir (1, 2, 3 ou combinações como 1,3). Extras vêm junto.
+          SECOES: "1"
         run: python dou_monitor.py ${{ github.event.inputs.data }}
 
       - name: Salvar resultados no repositório
