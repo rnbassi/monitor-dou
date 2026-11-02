@@ -1,0 +1,30 @@
+name: Diagnóstico (temporário)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Capturar páginas
+        run: |
+          mkdir -p diag
+          UA="Mozilla/5.0 (X11; Linux x86_64) monitor-dou-pessoal/1.0"
+          curl -sSL -A "$UA" -o diag/busca1.html -w "busca1 %{http_code} %{size_download}\n" \
+            'https://www.in.gov.br/consulta/-/buscar/dou?q=%22suplemento%22&s=todos&exactDate=personalizado&publishFrom=30-10-2026&publishTo=30-10-2026&sortType=0&delta=75'
+          curl -sSL -A "$UA" -o diag/busca2.html -w "busca2 %{http_code} %{size_download}\n" \
+            'https://www.in.gov.br/consulta/-/buscar/dou?q=suplemento&s=todos&exactDate=semana&sortType=0'
+          curl -sSL -A "$UA" -o diag/leitura.html -w "leitura %{http_code} %{size_download}\n" \
+            'https://www.in.gov.br/leiturajornal?data=30-10-2026&secao=do1'
+          ls -la diag
+      - name: Salvar
+        run: |
+          git config user.name "monitor-dou"
+          git config user.email "monitor-dou@users.noreply.github.com"
+          git add diag/
+          git commit -m "diagnóstico" && git push
