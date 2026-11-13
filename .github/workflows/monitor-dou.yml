@@ -44,12 +44,21 @@ jobs:
           git diff --cached --quiet || git commit -m "Resultados DOU $(date -u +%F)"
           git push
 
-      - name: Enviar relatório por e-mail (aviso do GitHub)
+      - name: Enviar relatório por e-mail
         env:
           GH_TOKEN: ${{ github.token }}
+          GMAIL_USUARIO: ${{ secrets.GMAIL_USUARIO }}
+          GMAIL_SENHA_APP: ${{ secrets.GMAIL_SENHA_APP }}
+          DESTINATARIOS: ${{ secrets.DESTINATARIOS }}
         run: |
           DATA="${{ github.event.inputs.data }}"
           [ -z "$DATA" ] && DATA=$(TZ=America/Sao_Paulo date +%F)
+          set +e
+          python enviar_email.py "$DATA"
+          COD=$?
+          set -e
+          # 0 = enviado pelo Gmail; 1 = nada a enviar. Senão (Gmail não configurado ou falhou), usa o aviso do GitHub.
+          if [ "$COD" = "0" ] || [ "$COD" = "1" ]; then exit 0; fi
           python dou_monitor_aviso.py "$DATA" "${{ github.repository_owner }}" aviso || exit 0
           URL=$(gh issue create --title "$(cat aviso/titulo.txt)" --body-file aviso/parte1.md)
           for f in $(ls aviso/parte*.md | sort -V | tail -n +2); do
