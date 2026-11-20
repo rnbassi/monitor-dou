@@ -1,0 +1,22 @@
+{
+ "data": "2026-11-20",
+ "data_br": "20/11/2026",
+ "gerado_em": "2026-11-20T12:55:15-03:00",
+ "fonte": "Busca pública do site do DOU (in.gov.br)",
+ "status": "ok",
+ "mensagem": "",
+ "palavras": [
+  "alimento",
+  "suplemento",
+  "notificação"
+ ],
+ "secoes_lidas": [
+  "Seção 1 (com extras)",
+  "Seção 2 (com extras)",
+  "Seção 3 (com extras)"
+ ],
+ "secoes_ausentes": [],
+ "atos_analisados": 0,
+ "total_ocorrencias": 0,
+ "ocorrencias": []
+}
