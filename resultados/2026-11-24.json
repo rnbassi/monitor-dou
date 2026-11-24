@@ -1,0 +1,22 @@
+{
+ "data": "2026-11-24",
+ "data_br": "24/11/2026",
+ "gerado_em": "2026-11-24T13:12:18-03:00",
+ "fonte": "Busca pública do site do DOU (in.gov.br)",
+ "status": "erro",
+ "mensagem": "Falha ao acessar https://www.in.gov.br/consulta/-/buscar/dou Falha ao acessar https://www.in.gov.br/consulta/-/buscar/dou Falha ao acessar https://www.in.gov.br/consulta/-/buscar/dou Falha ao acessar https://www.in.gov.br/consulta/-/buscar/dou Falha ao acessar https://www.in.gov.br/consulta/-/buscar/dou Falha ao acessar https://www.in.gov.br/consulta/-/buscar/dou Falha ao acessar https://www.in.gov.br/consulta/-/buscar/dou Falha ao acessar https://www.in.gov.br/consulta/-/buscar/dou Falha ao acessar https://www.in.gov.br/consulta/-/buscar/dou",
+ "palavras": [
+  "alimento",
+  "suplemento",
+  "notificação"
+ ],
+ "secoes_lidas": [
+  "Seção 1 (com extras)",
+  "Seção 2 (com extras)",
+  "Seção 3 (com extras)"
+ ],
+ "secoes_ausentes": [],
+ "atos_analisados": 0,
+ "total_ocorrencias": 0,
+ "ocorrencias": []
+}
